@@ -1,0 +1,471 @@
+# ============================================================================
+# PYTHON QR CODE GENERATOR - EVERY LINE EXPLAINED
+# ============================================================================
+
+# LINE 1: Import the qrcode library for generating QR codes
+# This library handles all the complex QR code creation logic
+import qrcode
+
+# LINE 2: Import PIL (Python Imaging Library) for image manipulation
+# PIL lets us work with images, colors, and image processing
+from PIL import Image
+
+# LINE 3: Import os module for file system operations
+# We'll use this to create directories and handle file paths
+import os
+
+# LINE 4: Import datetime to add timestamps to our files
+# This helps create unique filenames and track when QR codes were created
+from datetime import datetime
+
+# LINE 5: Import tkinter for creating GUI (Graphical User Interface)
+# tkinter is Python's built-in library for creating desktop applications
+import tkinter as tk
+
+# LINE 6: Import specific tkinter components we'll need
+# These are the building blocks for our GUI interface
+from tkinter import ttk, filedialog, messagebox, colorchooser
+
+# ============================================================================
+# SIMPLE COMMAND LINE QR GENERATOR CLASS
+# ============================================================================
+
+# LINE 7: Define a class to organize our QR code functionality
+# Classes help group related functions and data together
+class SimpleQRGenerator:
+    
+    # LINE 8: Constructor method - runs when we create a new instance
+    # The __init__ method initializes our object with default settings
+    def __init__(self):
+        
+        # LINE 9: Create a QRCode object with specific settings
+        # version=1 means smallest size, auto-adjusts as needed
+        self.qr = qrcode.QRCode(
+            version=1,              # Controls size (1 is smallest)
+            error_correction=qrcode.constants.ERROR_CORRECT_L,  # Error correction level
+            box_size=10,            # Size of each box in pixels
+            border=4,               # Width of border in boxes
+        )
+    
+    # LINE 10: Method to generate QR code from text
+    # This is where the actual QR code creation happens
+    def generate_qr(self, text, filename=None):
+        
+        # LINE 11: Clear any previous data from the QR code object
+        # This ensures we start fresh for each new QR code
+        self.qr.clear()
+        
+        # LINE 12: Add our text data to the QR code
+        # The QR code will encode whatever text we pass here
+        self.qr.add_data(text)
+        
+        # LINE 13: Optimize the QR code size automatically
+        # This adjusts the version (size) based on how much data we have
+        self.qr.make(fit=True)
+        
+        # LINE 14: Create the actual image from the QR code data
+        # fill_color is the QR code color, back_color is background
+        img = self.qr.make_image(fill_color="black", back_color="white")
+        
+        # LINE 15: If no filename provided, create one with timestamp
+        # This prevents overwriting files and makes each QR unique
+        if filename is None:
+            # Create filename with current date and time
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"qrcode_{timestamp}.png"
+        
+        # LINE 16: Save the image to a file
+        # The QR code image gets saved as a PNG file
+        img.save(filename)
+        
+        # LINE 17: Return the filename so caller knows where file was saved
+        return filename
+
+# ============================================================================
+# ADVANCED GUI QR GENERATOR CLASS
+# ============================================================================
+
+# LINE 18: Define advanced QR generator class with GUI
+# This class will create a window interface for easier use
+class AdvancedQRGenerator:
+    
+    # LINE 19: Constructor for the GUI version
+    def __init__(self):
+        
+        # LINE 20: Create the main window
+        # tk.Tk() creates the root window for our application
+        self.root = tk.Tk()
+        
+        # LINE 21: Set window title that appears in title bar
+        self.root.title("🔲 Python QR Code Generator")
+        
+        # LINE 22: Set window size (width x height)
+        self.root.geometry("600x700")
+        
+        # LINE 23: Make window non-resizable for consistent layout
+        self.root.resizable(False, False)
+        
+        # LINE 24: Set background color of main window
+        self.root.configure(bg='#f0f0f0')
+        
+        # LINE 25: Initialize variables to store user choices
+        # StringVar() creates a special variable that tkinter can monitor
+        self.qr_text = tk.StringVar()           # Stores the text to encode
+        self.qr_size = tk.IntVar(value=10)      # Stores box size
+        self.qr_border = tk.IntVar(value=4)     # Stores border size
+        self.fill_color = "#000000"             # QR code color (black)
+        self.back_color = "#FFFFFF"             # Background color (white)
+        
+        # LINE 26: Call method to create all GUI elements
+        self.create_widgets()
+    
+    # LINE 27: Method to create all the GUI components
+    def create_widgets(self):
+        
+        # LINE 28: Create main title label
+        # Label is a widget that displays text
+        title_label = tk.Label(
+            self.root,                          # Parent container
+            text="🔲 QR Code Generator",        # Text to display
+            font=("Arial", 24, "bold"),         # Font family, size, style
+            bg='#f0f0f0',                       # Background color
+            fg='#333333'                        # Text color
+        )
+        # LINE 29: Position the title at top with padding
+        title_label.pack(pady=20)
+        
+        # LINE 30: Create frame to group input elements
+        # Frame is a container that holds other widgets
+        input_frame = tk.Frame(self.root, bg='#f0f0f0')
+        input_frame.pack(pady=10, padx=20, fill='x')
+        
+        # LINE 31: Create label for text input
+        tk.Label(
+            input_frame, 
+            text="Enter text or URL:", 
+            font=("Arial", 12),
+            bg='#f0f0f0'
+        ).pack(anchor='w')  # anchor='w' aligns to left (west)
+        
+        # LINE 32: Create text input box (Entry widget)
+        self.text_entry = tk.Entry(
+            input_frame,
+            textvariable=self.qr_text,          # Links to our StringVar
+            font=("Arial", 11),
+            width=50,                           # Width in characters
+            relief='solid',                     # Border style
+            bd=1                                # Border width
+        )
+        # LINE 33: Position entry box with padding
+        self.text_entry.pack(pady=5, fill='x')
+        
+        # LINE 34: Create frame for quick buttons
+        quick_frame = tk.Frame(self.root, bg='#f0f0f0')
+        quick_frame.pack(pady=10)
+        
+        # LINE 35: Create quick option buttons
+        # These buttons set common text values quickly
+        quick_options = [
+            ("Google", "https://www.google.com"),
+            ("YouTube", "https://www.youtube.com"),
+            ("Sample Text", "Hello, World!"),
+            ("Phone", "tel:+1234567890")
+        ]
+        
+        # LINE 36: Loop through quick options and create buttons
+        for text, value in quick_options:
+            # LINE 37: Create button for each quick option
+            btn = tk.Button(
+                quick_frame,
+                text=text,                      # Button label
+                command=lambda v=value: self.set_quick_text(v),  # What happens when clicked
+                font=("Arial", 9),
+                bg='#e6f3ff',                   # Light blue background
+                relief='raised',                # 3D button effect
+                padx=10
+            )
+            # LINE 38: Pack button side by side
+            btn.pack(side='left', padx=5)
+        
+        # LINE 39: Create settings frame for customization options
+        settings_frame = tk.LabelFrame(
+            self.root, 
+            text="Settings", 
+            font=("Arial", 12, "bold"),
+            bg='#f0f0f0',
+            padx=10, 
+            pady=10
+        )
+        settings_frame.pack(pady=20, padx=20, fill='x')
+        
+        # LINE 40: Create size setting with label and spinbox
+        size_frame = tk.Frame(settings_frame, bg='#f0f0f0')
+        size_frame.pack(fill='x', pady=5)
+        
+        tk.Label(size_frame, text="Box Size:", bg='#f0f0f0').pack(side='left')
+        # LINE 41: Spinbox allows user to select numbers with up/down arrows
+        tk.Spinbox(
+            size_frame,
+            from_=5,                           # Minimum value
+            to=20,                             # Maximum value
+            textvariable=self.qr_size,         # Links to our IntVar
+            width=5
+        ).pack(side='right')
+        
+        # LINE 42: Create border setting
+        border_frame = tk.Frame(settings_frame, bg='#f0f0f0')
+        border_frame.pack(fill='x', pady=5)
+        
+        tk.Label(border_frame, text="Border Size:", bg='#f0f0f0').pack(side='left')
+        tk.Spinbox(
+            border_frame,
+            from_=1,
+            to=10,
+            textvariable=self.qr_border,
+            width=5
+        ).pack(side='right')
+        
+        # LINE 43: Create color selection buttons
+        color_frame = tk.Frame(settings_frame, bg='#f0f0f0')
+        color_frame.pack(fill='x', pady=10)
+        
+        # LINE 44: QR Code color button
+        tk.Button(
+            color_frame,
+            text="QR Color",
+            command=self.choose_fill_color,     # Method to open color picker
+            bg=self.fill_color,
+            fg='white',
+            font=("Arial", 10)
+        ).pack(side='left', padx=10)
+        
+        # LINE 45: Background color button
+        tk.Button(
+            color_frame,
+            text="Background Color",
+            command=self.choose_back_color,
+            bg=self.back_color,
+            font=("Arial", 10)
+        ).pack(side='right', padx=10)
+        
+        # LINE 46: Create generate button (main action button)
+        generate_btn = tk.Button(
+            self.root,
+            text="🔲 Generate QR Code",
+            command=self.generate_qr,           # Method called when clicked
+            font=("Arial", 14, "bold"),
+            bg='#4CAF50',                       # Green background
+            fg='white',                         # White text
+            relief='raised',
+            padx=20,
+            pady=10,
+            cursor='hand2'                      # Changes cursor to hand when hovering
+        )
+        generate_btn.pack(pady=20)
+        
+        # LINE 47: Create frame to display generated QR code
+        self.preview_frame = tk.Frame(self.root, bg='#ffffff', relief='sunken', bd=2)
+        self.preview_frame.pack(pady=10, padx=20, fill='both', expand=True)
+        
+        # LINE 48: Create label to show QR code image
+        self.preview_label = tk.Label(
+            self.preview_frame,
+            text="Generated QR Code will appear here",
+            bg='#ffffff',
+            fg='#666666',
+            font=("Arial", 12)
+        )
+        self.preview_label.pack(expand=True)
+        
+        # LINE 49: Create download button (initially hidden)
+        self.download_btn = tk.Button(
+            self.root,
+            text="💾 Save QR Code",
+            command=self.save_qr,
+            font=("Arial", 12),
+            bg='#2196F3',                       # Blue background
+            fg='white',
+            state='disabled'                    # Disabled until QR is generated
+        )
+        self.download_btn.pack(pady=10)
+    
+    # LINE 50: Method to set quick text options
+    def set_quick_text(self, text):
+        # LINE 51: Set the StringVar value, which updates the Entry widget
+        self.qr_text.set(text)
+    
+    # LINE 52: Method to choose QR code color
+    def choose_fill_color(self):
+        # LINE 53: Open color picker dialog
+        color = colorchooser.askcolor(title="Choose QR Code Color")
+        # LINE 54: If user selected a color (didn't cancel)
+        if color[1]:  # color[1] is the hex value
+            self.fill_color = color[1]
+    
+    # LINE 55: Method to choose background color
+    def choose_back_color(self):
+        color = colorchooser.askcolor(title="Choose Background Color")
+        if color[1]:
+            self.back_color = color[1]
+    
+    # LINE 56: Main method to generate QR code
+    def generate_qr(self):
+        # LINE 57: Get text from the input field
+        text = self.qr_text.get().strip()
+        
+        # LINE 58: Validate that user entered some text
+        if not text:
+            # LINE 59: Show error message if no text entered
+            messagebox.showerror("Error", "Please enter some text!")
+            return
+        
+        try:
+            # LINE 60: Create QR code object with user settings
+            qr = qrcode.QRCode(
+                version=1,
+                error_correction=qrcode.constants.ERROR_CORRECT_L,
+                box_size=self.qr_size.get(),    # Get value from IntVar
+                border=self.qr_border.get(),
+            )
+            
+            # LINE 61: Add user's text to QR code
+            qr.add_data(text)
+            
+            # LINE 62: Optimize QR code size
+            qr.make(fit=True)
+            
+            # LINE 63: Create image with user's color choices
+            img = qr.make_image(fill_color=self.fill_color, back_color=self.back_color)
+            
+            # LINE 64: Resize image for preview (so it fits in window)
+            img_resized = img.resize((300, 300), Image.Resampling.LANCZOS)
+            
+            # LINE 65: Convert PIL image to format tkinter can display
+            from PIL import ImageTk
+            self.qr_image = img  # Store original for saving
+            photo = ImageTk.PhotoImage(img_resized)
+            
+            # LINE 66: Update preview label to show the QR code
+            self.preview_label.configure(image=photo, text="")
+            self.preview_label.image = photo  # Keep reference to prevent garbage collection
+            
+            # LINE 67: Enable download button now that QR is generated
+            self.download_btn.configure(state='normal')
+            
+            # LINE 68: Show success message
+            messagebox.showinfo("Success", "QR Code generated successfully!")
+            
+        except Exception as e:
+            # LINE 69: Handle any errors that occur during generation
+            messagebox.showerror("Error", f"Failed to generate QR code: {str(e)}")
+    
+    # LINE 70: Method to save QR code to file
+    def save_qr(self):
+        # LINE 71: Check if QR code has been generated
+        if not hasattr(self, 'qr_image'):
+            messagebox.showerror("Error", "No QR code to save!")
+            return
+        
+        # LINE 72: Open file save dialog
+        filename = filedialog.asksaveasfilename(
+            defaultextension=".png",
+            filetypes=[("PNG files", "*.png"), ("All files", "*.*")],
+            title="Save QR Code"
+        )
+        
+        # LINE 73: If user chose a filename (didn't cancel)
+        if filename:
+            try:
+                # LINE 74: Save the QR code image
+                self.qr_image.save(filename)
+                messagebox.showinfo("Success", f"QR code saved as {filename}")
+            except Exception as e:
+                # LINE 75: Handle save errors
+                messagebox.showerror("Error", f"Failed to save file: {str(e)}")
+    
+    # LINE 76: Method to start the GUI application
+    def run(self):
+        # LINE 77: Start the tkinter event loop (keeps window open)
+        self.root.mainloop()
+
+# ============================================================================
+# COMMAND LINE FUNCTIONS
+# ============================================================================
+
+# LINE 78: Function to run simple command line version
+def run_simple_generator():
+    # LINE 79: Print welcome message
+    print("=" * 50)
+    print("🔲 SIMPLE QR CODE GENERATOR")
+    print("=" * 50)
+    
+    # LINE 80: Create instance of our simple generator
+    generator = SimpleQRGenerator()
+    
+    # LINE 81: Keep running until user chooses to quit
+    while True:
+        # LINE 82: Get text input from user
+        text = input("\nEnter text for QR code (or 'quit' to exit): ").strip()
+        
+        # LINE 83: Check if user wants to quit
+        if text.lower() == 'quit':
+            print("Goodbye!")
+            break
+        
+        # LINE 84: Check if user entered any text
+        if not text:
+            print("Please enter some text!")
+            continue
+        
+        try:
+            # LINE 85: Generate QR code
+            filename = generator.generate_qr(text)
+            print(f"✅ QR code saved as: {filename}")
+            
+        except Exception as e:
+            # LINE 86: Handle any errors
+            print(f"❌ Error: {e}")
+
+# ============================================================================
+# MAIN PROGRAM ENTRY POINT
+# ============================================================================
+
+# LINE 87: Main function that runs when script is executed
+def main():
+    # LINE 88: Ask user which version they want to use
+    print("QR Code Generator")
+    print("1. Simple (Command Line)")
+    print("2. Advanced (GUI)")
+    
+    # LINE 89: Get user choice
+    choice = input("Choose version (1 or 2): ").strip()
+    
+    # LINE 90: Run appropriate version based on choice
+    if choice == "1":
+        run_simple_generator()
+    elif choice == "2":
+        # LINE 91: Create and run GUI version
+        app = AdvancedQRGenerator()
+        app.run()
+    else:
+        print("Invalid choice!")
+
+# LINE 92: Standard Python idiom - only run if script is executed directly
+if __name__ == "__main__":
+    # LINE 93: Run main function
+    main()
+
+# ============================================================================
+# INSTALLATION REQUIREMENTS
+# ============================================================================
+"""
+To run this code, you need to install required packages:
+
+pip install qrcode[pil]
+
+This installs:
+- qrcode: The main QR code generation library
+- pillow: Python Imaging Library for image processing
+
+The [pil] part ensures PIL/Pillow is included with qrcode.
+"""

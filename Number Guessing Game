@@ -1,0 +1,27 @@
+import random
+
+# Generate the number once, outside the loop
+gen_num = random.randint(1, 100)
+print("\t\t\tI'm thinking of a number between 1 and 100!")
+print("\t\t\t\tCan you guess it?")
+
+while True:
+    try:
+        num = int(input("\nEnter your Guess number (1-100): "))
+        
+        # Check if number is in valid range
+        if num < 1 or num > 100:
+            print("Enter number between 1 and 100")
+            continue  # Go back to start of loop
+        
+        # Check the guess
+        if num == gen_num:
+            print(f'Your guessed number {num} is correct! Congratulations!')
+            break  # Exit the game
+        elif num > gen_num:
+            print(f'Your guessed number "{num}" is higher than actual number.')
+        elif num < gen_num:
+            print(f'Your guessed number "{num}" is lower than actual number.')
+            
+    except ValueError:
+        print("Please enter a valid number!")

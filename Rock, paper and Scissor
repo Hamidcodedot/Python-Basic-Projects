@@ -1,0 +1,33 @@
+import random
+print("-"*90)
+print("\t\t\tLet's Play Rock, Paper and Scissor")
+print("-"*90)
+choices = {'r': 'Rock', 'p': 'Paper', 's': 'Scissors'}
+pf = ('r', 'p', 's')
+
+while True:
+    user_choice = input("Chose one: Rock, Paper, or Scissors? r/p/s: ").lower()
+    if user_choice not in pf:
+        print("Invalid Choice")
+        continue 
+    
+    com_choice = random.choice(pf)
+    print(f'\nYou Chose= {choices[user_choice]}')
+    print(f'Computer Chose= {choices[com_choice]}')  
+    
+    if user_choice == com_choice: 
+        print("\n\t\t\t\tTie!")
+    elif ((user_choice == 'r' and com_choice == 's') or
+          (user_choice == 'p' and com_choice == 'r') or
+          (user_choice == 's' and com_choice == 'p')):
+        print("\n\t\t\t\tYou Win!")
+    else:
+        print("\n\t\t\t\tComputer Wins!")
+    
+    # Ask if player wants to play again
+    play_again = input("\nPlay again? (yes/no): ").lower()
+    if play_again != 'yes':
+        print("-"*90)
+        print("\t\t\tThanks for playing!")
+        print("-"*90)
+        break
